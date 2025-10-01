@@ -1,3 +1,5 @@
 div{
-  align=center
+  position:fixed
+  left:50%
+  bottom=:0%
 }
