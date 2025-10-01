@@ -4,3 +4,6 @@ div {
   top: 50%;
   transform: translate(-50%, -50%);
 }
+button{
+  size:50px;
+}
