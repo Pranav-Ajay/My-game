@@ -5,17 +5,128 @@
 <body>
 <div>
 <table>
-<tr><td><button onclick=analyse()>A</button></td><td><button onclick=analyse()>B</button></td><td><button onclick=analyse()>C</button></td><td><button onclick=analyse()>D</button></td></tr>
-<tr><td><button onclick=analyse()>E</button></td><td><button onclick=analyse()>F</button></td><td><button onclick=analyse()>G</button></td><td><button onclick=analyse()>H</button></td></tr>
-<tr><td><button onclick=analyse()>I</button></td><td><button onclick=analyse()>J</button></td><td><button onclick=analyse()>K</button></td><td><button onclick=analyse()>L</button></td></tr>
-<tr><td><button onclick=analyse()>M</button></td><td><button onclick=analyse()>N</button></td><td><button onclick=analyse()>O</button></td><td><button onclick=analyse()>P</button></td></tr>
+<tr><td><button onclick=analyse(this)>A</button></td><td><button onclick=analyse(this)>B</button></td><td><button onclick=analyse(this)>C</button></td><td><button onclick=analyse(this)>D</button></td></tr>
+<tr><td><button onclick=analyse(this)>E</button></td><td><button onclick=analyse(this)>F</button></td><td><button onclick=analyse(this)>G</button></td><td><button onclick=analyse(this)>H</button></td></tr>
+<tr><td><button onclick=analyse(this)>I</button></td><td><button onclick=analyse(this)>J</button></td><td><button onclick=analyse(this)>K</button></td><td><button onclick=analyse(this)>L</button></td></tr>
+<tr><td><button onclick=analyse(this)>M</button></td><td><button onclick=analyse(this)>N</button></td><td><button onclick=analyse(this)>O</button></td><td><button onclick=analyse(this)>P</button></td></tr>
 </table>
 </div>
+<script src="/socket.io/socket.io.js"></script>
 <script>
-questions={"What is the capital of France","What is the capital of Germany","What is the capital of Iran","What is the capital of Ethiopia","What is the capital of India",'What is the capital of North Korea","What is the capital of Japan","What is the capital of USA"}
-function analyse(){
-    if(button
+ questions=["What is the capital of France","What is the capital of Germany","What is the capital of Iran","What is the capital of Ethiopia","What is the capital of India",'What is the capital of North Korea","What is the capital of Japan","What is the capital of USA"]
+ const socket = io();
+
+ let myLetter = null;
+
+  socket.on('assigned', (data) => {
+    myLetter = data.letter;
+    document.title = `You are ${myLetter}`;
+  });
+
+function get(){
+    const randomIndex = Math.floor(Math.random() * questions.length);
+    const randomItem = questions[randomIndex];
+    return randomItem
+        }
+function showDialog(message, callback) {
+  const overlay = document.getElementById('dialogOverlay');
+  const dialog = document.getElementById('dialogBox');
+  const dialogMessage = document.getElementById('dialogMessage');
+  const answerInput = document.getElementById('answerInput');
+  const okBtn = document.getElementById('dialogOkBtn');
+
+  dialogMessage.textContent = message;
+  answerInput.value = '';
+  overlay.style.display = 'block';
+  dialog.style.display = 'block';
+  answerInput.focus();
+
+  okBtn.onclick = null;
+
+  okBtn.onclick = () => {
+    const userAnswer = answerInput.value.trim();
+    callback(userAnswer);
   }
+}
+
+function closeDialog() {
+  const overlay = document.getElementById('dialogOverlay');
+  const dialog = document.getElementById('dialogBox');
+  overlay.style.display = 'none';
+  dialog.style.display = 'none';
+}
+    
+function analyse(){
+    const buttonText = button.textContent.trim()
+    if(buttonText==myLetter){
+        players[id].frozen=true
+        function checkAnswer(userAnswer) {
+         for(const randomItem of questions){
+         if(randomItem=="What is the capital of France"){
+             if(userAnswer=="Paris"){
+                   players[id].frozen=false
+                   closeDialog()}
+                         
+             else:
+             { alert("INCORRECT!PLEASE TRY AGAIN")
+               showDialog("you have been freezed.Please solve the question to continue:"+get(),checkAnswer)}
+                                                                                                  }
+
+          if(randomItem=="What is the capital of Germany")
+           {if(userAnswer=="Berlin")
+             {players[id].frozen=false
+                   closeDialog()}
+             else:
+              {alert("INCORRECT!PLEASE TRY AGAIN")
+               showDialog("you have been freezed.Please solve the question to continue:"+get(),checkAnswer)}
+           }
+          if(randomItem=="What is the capital of Iran"){
+             if(userAnswer=="Tehran")
+                {   players[id].frozen=false
+                   closeDialog()}
+             else
+              {alert("INCORRECT!PLEASE TRY AGAIN")
+               showDialog("you have been freezed.Please solve the question to continue:"+get(),checkAnswer)}
+          }
+    
+          if(randomItem=="What is the capital of Ethiopia"){
+             if(userAnswer=="Addis Abada")
+               { players[id].frozen=false
+                   closeDialog()}
+             else:
+              {alert("INCORRECT!PLEASE TRY AGAIN")
+               showDialog("you have been freezed.Please solve the question to continue:"+get(),checkAnswer)}
+          }
+                 
+          if(randomItem=="What is the capital of India"){
+             if(userAnswer=="New Delhi")
+               { players[id].frozen=false
+                   closeDialog()}
+             else{
+               alert("INCORRECT!PLEASE TRY AGAIN")
+               showDialog("you have been freezed.Please solve the question to continue:"+get(),checkAnswer) }
+
+          if(randomItem=="What is the capital of North Korea"){
+             if(userAnswer=="Pyongyang"){
+                   players[id].frozen=false
+                   closeDialog()}
+             else{
+               alert("INCORRECT!PLEASE TRY AGAIN")
+               showDialog("you have been freezed.Please solve the question to continue:"+get(),checkAnswer)}
+          }
+
+          if(randomItem=="What is the capital of Japan"){
+             if(userAnswer=="Tokyo"){
+                   players[id].frozen=false
+                   closeDialog()}
+             else{
+               alert("INCORRECT!PLEASE TRY AGAIN")
+               showDialog("you have been freezed.Please solve the question to continue:"+get(),checkAnswer)}
+          }
+         }
+        }
+    showDialog("you have been freezed.Please solve the question to continue:"+get(), function checkAnswer(userAnswer))}
+ analyse()
 </script>
 </body>
 </html>
