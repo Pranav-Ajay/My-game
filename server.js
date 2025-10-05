@@ -9,7 +9,7 @@ app.use(express.static(__dirname));
 
 const allowedIPs = [
   '::1',               
-  '192.168.1.25'      
+  '192.168.1.107'      
 ];
 
 const players = {};
