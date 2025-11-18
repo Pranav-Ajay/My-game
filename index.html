@@ -107,6 +107,7 @@ function analyse(button) {
     const buttonText = button.textContent.trim();
 
     if (buttonText == myLetter) {
+        socket.emit("freezePlayer", { letter: buttonText });
 
         players[id].frozen = true;
 
