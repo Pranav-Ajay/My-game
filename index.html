@@ -49,7 +49,8 @@
 <script src="/socket.io/socket.io.js"></script>
 <script>
 
-questions = [
+
+const questions = [
  "What is the capital of France",
  "What is the capital of Germany",
  "What is the capital of Iran",
@@ -58,15 +59,19 @@ questions = [
  "What is the capital of North Korea",
  "What is the capital of Japan",
  "What is the capital of USA"
-]
+];
+
+function getQuestion() {
+    return questions[Math.floor(Math.random() * questions.length)];
+}
 
 const socket = io();
 let myLetter = null;
-
 let players = {};
-let id = "player1";
+let id = "player1";  
 players[id] = { frozen:false };
 
+// Receive letter
 socket.on('assigned', (data) => {
     myLetter = data.letter;
     document.title = `You are ${myLetter}`;
@@ -74,29 +79,23 @@ socket.on('assigned', (data) => {
 
 socket.on("update", (updatedPlayers) => {
 
-players = updatedPlayers;
+    players = updatedPlayers;
 
-function get() {
-    const randomIndex = Math.floor(Math.random() * questions.length);
-    return questions[randomIndex];
-}
+    if (players[id] && players[id].frozen === true) {
+        askQuestionToUnfreeze();
+    }
+
+});
+
 
 function showDialog(message, callback) {
-    const overlay = document.getElementById('dialogOverlay');
-    const dialog = document.getElementById('dialogBox');
-    const dialogMessage = document.getElementById('dialogMessage');
-    const answerInput = document.getElementById('answerInput');
-    const okBtn = document.getElementById('dialogOkBtn');
+    document.getElementById('dialogMessage').textContent = message;
+    document.getElementById('answerInput').value = "";
+    document.getElementById('dialogOverlay').style.display = 'block';
+    document.getElementById('dialogBox').style.display = 'block';
 
-    dialogMessage.textContent = message;
-    answerInput.value = '';
-    overlay.style.display = 'block';
-    dialog.style.display = 'block';
-    answerInput.focus();
-
-    okBtn.onclick = () => {
-        const userAnswer = answerInput.value.trim();
-        callback(userAnswer);
+    document.getElementById('dialogOkBtn').onclick = () => {
+        callback(document.getElementById('answerInput').value.trim());
     };
 }
 
@@ -106,129 +105,54 @@ function closeDialog() {
 }
 
 
-function analyse(button) {
+function askQuestionToUnfreeze() {
 
+    const question = getQuestion();
+
+    function checkAnswer(ans) {
+
+        let correct =
+            (question == "What is the capital of France" && ans == "Paris") ||
+            (question == "What is the capital of Germany" && ans == "Berlin") ||
+            (question == "What is the capital of Iran" && ans == "Tehran") ||
+            (question == "What is the capital of Ethiopia" && ans == "Addis Ababa") ||
+            (question == "What is the capital of India" && ans == "New Delhi") ||
+            (question == "What is the capital of North Korea" && ans == "Pyongyang") ||
+            (question == "What is the capital of Japan" && ans == "Tokyo") ||
+            (question == "What is the capital of USA" && ans == "Washington DC");
+
+        if (correct) {
+            players[id].frozen = false;
+            closeDialog();
+        } else {
+            alert("Incorrect! Try again.");
+            showDialog("You have been frozen. Solve: " + question, checkAnswer);
+        }
+    }
+
+    showDialog("You have been frozen. Solve: " + question, checkAnswer);
+}
+
+
+function analyse(button) {
+    
     const buttonText = button.textContent.trim();
 
-    let isOpponent = false;
+    if (buttonText === myLetter) return;
 
+    let opponent = false;
     for (let pid in players) {
-        if (players[pid].letter === buttonText && players[pid].letter !== myLetter) {
-            isOpponent = true;
+        if (players[pid].letter === buttonText) {
+            opponent = true;
             break;
         }
     }
 
-    if (isOpponent) {
+    if (opponent) {
         socket.emit("freezePlayer", { letter: buttonText });
-        const question = get();
-        showdialog("You have been frozen,solve to unfreeze"+question);
+        return;
     }
-
-
-
-        function checkAnswer(userAnswer) {
-
-            
-            if (question == "What is the capital of France") {
-                if (userAnswer == "Paris") {
-                    players[id].frozen = false;
-                    closeDialog();
-                    return;
-                } else {
-                    alert("INCORRECT! PLEASE TRY AGAIN");
-                    showDialog("You have been freezed. Please solve the question to continue: " + question, checkAnswer);
-                }
-            }
-
-           
-            if (question == "What is the capital of Germany") {
-                if (userAnswer == "Berlin") {
-                    players[id].frozen = false;
-                    closeDialog();
-                    return;
-                } else {
-                    alert("INCORRECT! PLEASE TRY AGAIN");
-                    showDialog("You have been freezed. Please solve the question to continue: " + question, checkAnswer);
-                }
-            }
-
-            
-            if (question == "What is the capital of Iran") {
-                if (userAnswer == "Tehran") {
-                    players[id].frozen = false;
-                    closeDialog();
-                    return;
-                } else {
-                    alert("INCORRECT! PLEASE TRY AGAIN");
-                    showDialog("You have been freezed. Please solve the question to continue: " + question, checkAnswer);
-                }
-            }
-
-            if (question == "What is the capital of Ethiopia") {
-                if (userAnswer == "Addis Ababa") {
-                    players[id].frozen = false;
-                    closeDialog();
-                    return;
-                } else {
-                    alert("INCORRECT! PLEASE TRY AGAIN");
-                    showDialog("You have been freezed. Please solve the question to continue: " + question, checkAnswer);
-                }
-            }
-
-            
-            if (question == "What is the capital of India") {
-                if (userAnswer == "New Delhi") {
-                    players[id].frozen = false;
-                    closeDialog();
-                    return;
-                } else {
-                    alert("INCORRECT! PLEASE TRY AGAIN");
-                    showDialog("You have been freezed. Please solve the question to continue: " + question, checkAnswer);
-                }
-            }
-
-          
-            if (question == "What is the capital of North Korea") {
-                if (userAnswer == "Pyongyang") {
-                    players[id].frozen = false;
-                    closeDialog();
-                    return;
-                } else {
-                    alert("INCORRECT! PLEASE TRY AGAIN");
-                    showDialog("You have been freezed. Please solve the question to continue: " + question, checkAnswer);
-                }
-            }
-
-           
-            if (question == "What is the capital of Japan") {
-                if (userAnswer == "Tokyo") {
-                    players[id].frozen = false;
-                    closeDialog();
-                    return;
-                } else {
-                    alert("INCORRECT! PLEASE TRY AGAIN");
-                    showDialog("You have been freezed. Please solve the question to continue: " + question, checkAnswer);
-                }
-            }
-
-           
-            if (question == "What is the capital of USA") {
-                if (userAnswer == "Washington DC") {
-                    players[id].frozen = false;
-                    closeDialog();
-                    return;
-                } else {
-                    alert("INCORRECT! PLEASE TRY AGAIN");
-                    showDialog("You have been freezed. Please solve the question to continue: " + question, checkAnswer);
-                }
-               }
-
-             showDialog("You have been freezed. Please solve the question to continue: " + question, checkAnswer);
-             checkAnswer()
-            }
-           }
-           
+}
 
 </script>
 </body>
