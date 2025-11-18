@@ -8,7 +8,7 @@ const io = socketIo(server);
 
 app.use(express.static(__dirname));
 
-const allowedIPs = ['::1', '192.168.1.105'];
+const allowedIPs = ['::1', '2406:8800:9014:57ca:79c0:ae7b:49c3:fb89'];
 
 const players = {};
 const alphabets = 'ABCDEFGHIJKLMNOP'.split('');
