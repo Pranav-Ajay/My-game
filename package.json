@@ -8,7 +8,5 @@
   },
   "dependencies": {
     "express": "^4.18.2"
-    // IMPORTANT: If your server.js uses other modules (like dotenv, body-parser, mysql),
-    // you must add them here with their respective versions.
   }
 }
