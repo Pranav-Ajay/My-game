@@ -85,7 +85,7 @@ socket.on("update", (updatedPlayers) => {
     players = updatedPlayers;
 
     if (players[id] && players[id].frozen === true) {
-        getQuestion();
+          askQuestionToUnfreez();
     }
 });
 
@@ -108,8 +108,6 @@ function closeDialog() {
 
 function askQuestionToUnfreeze() {
 
-    const question = getQuestion();
-
     function checkAnswer(ans) {
 
         let correct =
@@ -128,6 +126,7 @@ function askQuestionToUnfreeze() {
         } else {
             alert("Incorrect! Try again.");
             showDialog("You have been frozen. Solve: " + question, checkAnswer);
+            const question = getQuestion();
         }
     }
 
