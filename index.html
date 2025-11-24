@@ -68,10 +68,13 @@ function getQuestion() {
 const socket = io();
 let myLetter = null;
 let players = {};
-let id = "player1";  
-players[id] = { frozen:false };
+let id = null; 
 
-// Receive letter
+socket.on('connect', () => {
+    id = socket.id; 
+    console.log('My unique ID is:', id); 
+});
+
 socket.on('assigned', (data) => {
     myLetter = data.letter;
     document.title = `You are ${myLetter}`;
@@ -84,9 +87,7 @@ socket.on("update", (updatedPlayers) => {
     if (players[id] && players[id].frozen === true) {
         askQuestionToUnfreeze();
     }
-
 });
-
 
 function showDialog(message, callback) {
     document.getElementById('dialogMessage').textContent = message;
