@@ -107,6 +107,8 @@ function closeDialog() {
 
 
 function askQuestionToUnfreeze() {
+   
+    const question = getQuestion();
 
     function checkAnswer(ans) {
 
@@ -126,7 +128,6 @@ function askQuestionToUnfreeze() {
         } else {
             alert("Incorrect! Try again.");
             showDialog("You have been frozen. Solve: " + question, checkAnswer);
-            const question = getQuestion();
         }
     }
 
