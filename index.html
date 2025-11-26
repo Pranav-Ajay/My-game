@@ -108,11 +108,9 @@ function closeDialog() {
 
 function askQuestionToUnfreeze() {
    
-    console.log("--- askQuestionToUnfreeze() HAS STARTED ---");
-   
     const question = getQuestion();
 
-    console.log("Question retrieved:", question);
+    showDialog("You have been frozen. Solve: " + question, checkAnswer);
 
     function checkAnswer(ans) {
 
@@ -136,7 +134,6 @@ function askQuestionToUnfreeze() {
            }
         }
 
-    showDialog("You have been frozen. Solve: " + question, checkAnswer);
 }
 
 
