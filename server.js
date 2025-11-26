@@ -8,7 +8,13 @@ const io = socketIo(server);
 
 app.use(express.static(__dirname));
 
-const allowedIPs = ['::1','::ffff:192.168.1.103','::ffff:192.168.1.104'];
+const allowedIPs = [
+  '::1',
+  '192.168.1.103',
+  '192.168.1.104',
+  '::ffff:192.168.1.103',
+  '::ffff:192.168.1.104'
+];
 
 const players = {};
 const alphabets = 'ABCDEFGHIJKLMNOP'.split('');
@@ -58,17 +64,19 @@ io.on('connection', (socket) => {
     for (let id in players) {
       if (players[id].letter === letter) {
         players[id].frozen = true;
-      }
-    }
-
+       }
+     }
+     io.emit('update', players);
+   });
+  
   socket.on('unfreezePlayer', (data) => {
   const { letter } = data;
 
   for (let id in players) {
     if (players[id].letter === letter) {
         players[id].frozen = false;
+     }
     }
-  }
 
     io.emit('update', players);
   });
