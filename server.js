@@ -61,6 +61,15 @@ io.on('connection', (socket) => {
       }
     }
 
+  socket.on('unfreezePlayer', (data) => {
+  const { letter } = data;
+
+  for (let id in players) {
+    if (players[id].letter === letter) {
+        players[id].frozen = false;
+    }
+  }
+
     io.emit('update', players);
   });
 
