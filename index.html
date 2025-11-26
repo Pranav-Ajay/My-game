@@ -110,8 +110,6 @@ function askQuestionToUnfreeze() {
    
     const question = getQuestion();
 
-    showDialog("You have been frozen. Solve: " + question, checkAnswer);
-
     function checkAnswer(ans) {
 
         let correct =
@@ -133,6 +131,8 @@ function askQuestionToUnfreeze() {
             showDialog("You have been frozen. Solve: " + question, checkAnswer);
            }
         }
+        
+    showDialog("You have been frozen. Solve: " + question, checkAnswer);
 
 }
 
