@@ -153,7 +153,11 @@ function analyse(button) {
         socket.emit("freezePlayer", { letter: buttonText });
         return;
     }
-}
+
+    else{
+        socket.emit("unfreezePlayer", { letter: buttonText });
+        return;
+    }
 
 </script>
 </body>
