@@ -108,19 +108,19 @@ function closeDialog() {
 
 function askQuestionToUnfreeze() {
    
-    const question = getQuestion();
+    const questiontext = getQuestion();
 
     function checkAnswer(ans) {
 
         let correct =
-            (question == "What is the capital of France" && ans == "Paris") ||
-            (question == "What is the capital of Germany" && ans == "Berlin") ||
-            (question == "What is the capital of Iran" && ans == "Tehran") ||
-            (question == "What is the capital of Ethiopia" && ans == "Addis Ababa") ||
-            (question == "What is the capital of India" && ans == "New Delhi") ||
-            (question == "What is the capital of North Korea" && ans == "Pyongyang") ||
-            (question == "What is the capital of Japan" && ans == "Tokyo") ||
-            (question == "What is the capital of USA" && ans == "Washington DC");
+            (questiontext == "What is the capital of France" && ans == "Paris") ||
+            (questiontext == "What is the capital of Germany" && ans == "Berlin") ||
+            (questiontext == "What is the capital of Iran" && ans == "Tehran") ||
+            (questiontext == "What is the capital of Ethiopia" && ans == "Addis Ababa") ||
+            (questiontext == "What is the capital of India" && ans == "New Delhi") ||
+            (questiontext == "What is the capital of North Korea" && ans == "Pyongyang") ||
+            (questiontext == "What is the capital of Japan" && ans == "Tokyo") ||
+            (questiontext == "What is the capital of USA" && ans == "Washington DC");
 
         if (correct) {
             players[id].frozen = false;
@@ -128,11 +128,11 @@ function askQuestionToUnfreeze() {
         } 
         else {
             alert("Incorrect! Try again.");
-            showDialog("You have been frozen. Solve: " + question, checkAnswer);
+            showDialog("You have been frozen. Solve: " + questiontext, checkAnswer);
            }
         }
         
-    showDialog("You have been frozen. Solve: " + question, checkAnswer);
+    showDialog("You have been frozen. Solve: " + questiontext, checkAnswer);
 
 }
 
