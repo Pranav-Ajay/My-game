@@ -125,11 +125,14 @@ function askQuestionToUnfreeze() {
         if (correct) {
             players[id].frozen = false;
             closeDialog();
-        } else {
+        } 
+        else {
             alert("Incorrect! Try again.");
             showDialog("You have been frozen. Solve: " + question, checkAnswer);
+           }
         }
-    }
+
+       checkAnswer(ans);
 
     showDialog("You have been frozen. Solve: " + question, checkAnswer);
 }
