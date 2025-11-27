@@ -85,7 +85,8 @@ socket.on("update", (updatedPlayers) => {
     players = updatedPlayers;
 
     if (players[id] && players[id].frozen === true) {
-          askQuestionToUnfreeze();
+     
+        askQuestionToUnfreeze();
     }
 });
 
