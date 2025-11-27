@@ -4,39 +4,33 @@ const socketIo = require('socket.io');
 
 const app = express();
 const server = http.createServer(app);
-const io = socketIo(server);
+const io = socketIo(server, {
+  cors: { origin: "*" }
+});
 
 app.use(express.static(__dirname));
 
-const allowedIPs = [
+const players = {};
+const alphabets = 'ABCDEFGHIJKLMNOP'.split('');
+
+const allowedIPs = process.env.ALLOW_IP === "true" ? [
   '::1',
   '192.168.1.103',
   '192.168.1.104',
   '::ffff:192.168.1.103',
   '::ffff:192.168.1.104'
-];
-
-const players = {};
-const alphabets = 'ABCDEFGHIJKLMNOP'.split('');
+] : null;
 
 io.on('connection', (socket) => {
-
-  let ip = socket.handshake.address;
-
-  if (ip.startsWith('::ffff:')) {
-    ip = ip.replace('::ffff:', '');
-  }
-
+  let ip = socket.handshake.address.replace('::ffff:', '');
   console.log(`Connection attempt from ${ip}`);
 
-  if (!allowedIPs.includes(ip)) {
+  if (allowedIPs && !allowedIPs.includes(ip)) {
     console.log(`Blocked unauthorized IP: ${ip}`);
     socket.emit('errorMessage', 'You are not allowed to join this game.');
     socket.disconnect(true);
     return;
   }
-
-  console.log('Player connected:', socket.id);
 
   const assignedLetter = alphabets.find(
     letter => !Object.values(players).some(p => p.letter === letter)
@@ -48,36 +42,21 @@ io.on('connection', (socket) => {
     return;
   }
 
-  players[socket.id] = { 
-    letter: assignedLetter, 
-    frozen: false, 
-    ip 
-  };
-  
+  players[socket.id] = { letter: assignedLetter, frozen: false };
   socket.emit('assigned', players[socket.id]);
-  
   io.emit('update', players);
 
-  socket.on('freezePlayer', (data) => {
-    const { letter } = data;
-
+  socket.on('freezePlayer', ({ letter }) => {
     for (let id in players) {
-      if (players[id].letter === letter) {
-        players[id].frozen = true;
-       }
-     }
-     io.emit('update', players);
-   });
-  
-  socket.on('unfreezePlayer', (data) => {
-  const { letter } = data;
-
-  for (let id in players) {
-    if (players[id].letter === letter) {
-        players[id].frozen = false;
-     }
+      if (players[id].letter === letter) players[id].frozen = true;
     }
+    io.emit('update', players);
+  });
 
+  socket.on('unfreezePlayer', ({ letter }) => {
+    for (let id in players) {
+      if (players[id].letter === letter) players[id].frozen = false;
+    }
     io.emit('update', players);
   });
 
@@ -88,6 +67,7 @@ io.on('connection', (socket) => {
   });
 });
 
-server.listen(3000, () => {
-  console.log('Server running on port 3000');
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, "0.0.0.0", () => {
+  console.log(`Server running on port ${PORT}`);
 });
