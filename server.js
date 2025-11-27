@@ -53,12 +53,25 @@ io.on('connection', (socket) => {
     io.emit('update', players);
   });
 
-  socket.on('unfreezePlayer', ({ letter }) => {
-    for (let id in players) {
-      if (players[id].letter === letter) players[id].frozen = false;
+socket.on('unfreezePlayer', (data) => {
+    let targetId = null;
+    if (data && data.letter) {
+        for (let id in players) {
+            if (players[id].letter === data.letter) {
+                targetId = id;
+                break;
+            }
+        }
+    } else {
+        targetId = socket.id;
     }
+    
+    if (targetId && players[targetId]) {
+        players[targetId].frozen = false;
+    }
+
     io.emit('update', players);
-  });
+});
 
   socket.on('disconnect', () => {
     delete players[socket.id];
