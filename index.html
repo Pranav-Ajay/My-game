@@ -124,7 +124,8 @@ function askQuestionToUnfreeze() {
             (questiontext == "What is the capital of USA" && ans == "Washington DC");
 
         if (correct) {
-            players[id].frozen=false;
+            socket.emit("unfreezePlayer");
+            dialogOpen = false;
             closeDialog();
         } 
         else {
