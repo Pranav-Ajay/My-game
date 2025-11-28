@@ -137,11 +137,11 @@ function askQuestionToUnfreeze() {
         } 
         else {
             alert("Incorrect! Try again.");
-            showDialog("You have been frozen. Solve: " + questiontext, checkAnswer,timer);
+            showDialog("You have been frozen. Solve: " + questiontext, checkAnswer);
            }
         }
         
-    showDialog("You have been frozen. Solve: " + questiontext, checkAnswer,timer);
+    showDialog("You have been frozen. Solve: " + questiontext, checkAnswer);
 
 }
 
@@ -168,22 +168,22 @@ function analyse(button) {
  }
 
     
-function countdown(){
+function countdown() {
+    const time = document.getElementById("bello");
 
-    const time=document.getElementById("bello");
- 
-    b--;
-    if(b<0){
-      clearInterval(timer);
-      return;
-      }
-    if(b>=10){
-      time.innerHTML= a,":",b;
-     }
-    else if(b<10){
-      time.innerHTML= a,":","0"+b; 
-     }
+    if (b < 0) {
+        clearInterval(timer);
+        return;
     }
+
+    if (b >= 10) {
+        time.innerHTML = "00:" + b;
+    } else {
+        time.innerHTML = "00:0" + b;
+    }
+
+    b--;
+}
 
 
 </script>
