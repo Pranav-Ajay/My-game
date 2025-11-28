@@ -15,9 +15,9 @@ const alphabets = 'ABCDEFGHIJKLMNOP'.split('');
 
 const allowedIPs = process.env.ALLOW_IP === "true" ? [
   '::1',
-  '192.168.1.103',
+  '192.168.1.101',
   '192.168.1.104',
-  '::ffff:192.168.1.103',
+  '::ffff:192.168.1.101',
   '::ffff:192.168.1.104'
 ] : null;
 
