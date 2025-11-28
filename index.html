@@ -93,14 +93,14 @@ socket.on("update", (updatedPlayers) => {
     }
 });
 
-function showDialog(message, callback, timer) {
+function showDialog(message, callback) {
     document.getElementById('dialogMessage').textContent = message;
     document.getElementById('answerInput').value = "";
     document.getElementById('dialogOverlay').style.display = 'block';
     document.getElementById('dialogBox').style.display = 'block';
     b=30;
     countdown();
-    const timer=setInterval(countdown,1000);
+    timer=setInterval(countdown,1000);
     document.getElementById('dialogOkBtn').onclick = () => {
         callback(document.getElementById('answerInput').value.trim());
     };
