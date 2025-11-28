@@ -50,8 +50,9 @@
 <script src="/socket.io/socket.io.js"></script>
 <script>
 
-const a="00";
-let b=30;
+let timer = null;
+let b = 30;
+
 const questions = [
  "What is the capital of France",
  "What is the capital of Germany",
@@ -92,12 +93,14 @@ socket.on("update", (updatedPlayers) => {
     }
 });
 
-function showDialog(message, callback) {
+function showDialog(message, callback, timer) {
     document.getElementById('dialogMessage').textContent = message;
     document.getElementById('answerInput').value = "";
     document.getElementById('dialogOverlay').style.display = 'block';
     document.getElementById('dialogBox').style.display = 'block';
-
+    b=30;
+    countdown();
+    const timer=setInterval(countdown,1000);
     document.getElementById('dialogOkBtn').onclick = () => {
         callback(document.getElementById('answerInput').value.trim());
     };
@@ -106,6 +109,7 @@ function showDialog(message, callback) {
 function closeDialog() {
     document.getElementById('dialogOverlay').style.display = 'none';
     document.getElementById('dialogBox').style.display = 'none';
+    clearInterval(timer);
 }
 
 
@@ -128,15 +132,16 @@ function askQuestionToUnfreeze() {
         if (correct) {
             socket.emit("unfreezePlayer");
             dialogOpen = false;
+            clearInterval(timer);
             closeDialog();
         } 
         else {
             alert("Incorrect! Try again.");
-            showDialog("You have been frozen. Solve: " + questiontext, checkAnswer);
+            showDialog("You have been frozen. Solve: " + questiontext, checkAnswer,timer);
            }
         }
         
-    showDialog("You have been frozen. Solve: " + questiontext, checkAnswer);
+    showDialog("You have been frozen. Solve: " + questiontext, checkAnswer,timer);
 
 }
 
@@ -162,24 +167,24 @@ function analyse(button) {
 
  }
 
-const element=document.getElementById("bello").innerHtml
     
 function countdown(){
+
+    const time=document.getElementById("bello");
  
     b--;
     if(b<0){
-      clearInterval(element);
+      clearInterval(timer);
       return;
       }
     if(b>=10){
-      console.log(a,":",b);
+      time.innerHTML(a,":",b);
      }
     else if(b<10){
-      console.log(a,":","0"+b); 
+      time.innerHTML(a,":","0"+b); 
      }
     }
-   const element = setInterval(countdown, 1000);
-   console.log(element);
+
 
 </script>
 </body>
