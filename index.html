@@ -131,7 +131,6 @@ function askQuestionToUnfreeze() {
 
         if (correct) {
             socket.emit("unfreezePlayer");
-            dialogOpen = false;
             clearInterval(timer);
             closeDialog();
         } 
