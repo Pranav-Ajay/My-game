@@ -110,6 +110,7 @@ function askQuestionToUnfreeze() {
   function checkAnswer(ans) {
     if (ans === answers[q]) {
       socket.emit("unfreezePlayer", { letter: myLetter });
+      players[id].frozen = false;
       closeDialog();
     } else {
       alert("Incorrect! Try again.");
