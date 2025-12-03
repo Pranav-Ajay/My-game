@@ -67,6 +67,20 @@ io.on('connection', (socket) => {
   });
 });
 
+  socket.on('freezealpha', ({ letter })  => {
+    for (let id in players) {
+      if (players[id].frozen == true)  alphabets.frozen==true;
+    }
+    io.emit('update', players);
+ });
+
+  socket.on('unfreezealpha', ({ letter })  => {
+    for (let id in players) {
+      if (players[id].frozen = false)  alphabets.frozen==false;
+    }
+    io.emit('update', players);
+ });
+
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, "0.0.0.0", () => {
   console.log(`Server running on port ${PORT}`);
