@@ -77,7 +77,7 @@ socket.on('connect', () => {
 
 socket.on('assigned', (data) => {
     myLetter = data.letter;
-    document.title = You are ${myLetter};
+    document.title = 'You are ${myLetter}';
 });
 
 socket.on("update", (updatedPlayers) => {
