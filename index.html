@@ -126,9 +126,11 @@ function analyse(button) {
 
   const exists = Object.values(players).some(p => p.letter === clicked);
 
-  if (exists) {  
+  if (exists) { 
+    players[id].frozen = true;
     socket.emit("freezePlayer", { letter: clicked });
   } else {
+    players[id].frozen = true;
     socket.emit("unfreezePlayer", { letter: clicked });
   }
 }
