@@ -129,11 +129,7 @@ function analyse(button) {
   if (exists) { 
     players[id].frozen = true;
     socket.emit("freezePlayer", { letter: clicked });
-  } else {
-    players[id].frozen = true;
-    socket.emit("unfreezePlayer", { letter: clicked });
-  }
-}
+  } 
 </script>
 </body>
 </html>
