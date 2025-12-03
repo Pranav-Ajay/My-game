@@ -15,10 +15,10 @@ const alphabets = 'ABCDEFGHIJKLMNOP'.split('');
 
 const allowedIPs = process.env.ALLOW_IP === "true" ? [
   '::1',
-  '192.168.1.101',
-  '192.168.1.104',
-  '::ffff:192.168.1.101',
-  '::ffff:192.168.1.104'
+  '192.168.9.201',
+  '192.168.9.200',
+  '::ffff:192.168.9.201',
+  '::ffff:192.168.9.200'
 ] : null;
 
 io.on('connection', (socket) => {
