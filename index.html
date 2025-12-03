@@ -111,6 +111,7 @@ function askQuestionToUnfreeze() {
     if (ans === answers[q]) {
       socket.emit("unfreezePlayer", { letter: myLetter });
       players[id].frozen = false;
+      socket.emit("freezealpha", { letter: clicked });   
       closeDialog();
     } else {
       alert("Incorrect! Try again.");
@@ -130,6 +131,7 @@ function analyse(button) {
   if (exists) { 
     players[id].frozen = true;
     socket.emit("freezePlayer", { letter: clicked });   
+    socket.emit("unfreezealpha", { letter: clicked });  
   } 
  }
 </script>
