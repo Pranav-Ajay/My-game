@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html>
-<title>Tag</title>
 <head>
-<link rel="stylesheet" href="styles.css" type="text/css">
+<title>Tag game</title>
+<link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
@@ -14,21 +14,18 @@
 <td><button onclick="analyse(this)">C</button></td>
 <td><button onclick="analyse(this)">D</button></td>
 </tr>
-
 <tr>
 <td><button onclick="analyse(this)">E</button></td>
 <td><button onclick="analyse(this)">F</button></td>
 <td><button onclick="analyse(this)">G</button></td>
 <td><button onclick="analyse(this)">H</button></td>
 </tr>
-
 <tr>
 <td><button onclick="analyse(this)">I</button></td>
 <td><button onclick="analyse(this)">J</button></td>
 <td><button onclick="analyse(this)">K</button></td>
 <td><button onclick="analyse(this)">L</button></td>
 </tr>
-
 <tr>
 <td><button onclick="analyse(this)">M</button></td>
 <td><button onclick="analyse(this)">N</button></td>
@@ -38,17 +35,20 @@
 </table>
 </div>
 
-<div id="dialogOverlay"  style="display:none; position:fixed; width:100%; height:100%; background:rgba(0,0,0,0.4); justify-content:center; align-items:center;">
-    <div id="dialogBox" style="background:white; padding:20px; width:600px; border-radius:10px; text-align:center;">
-        <p id="dialogMessage" style="position:fixed"></p>
-        <input id="answerInput" type="text">
-        <button id="dialogOkBtn">OK</button>
-    </div>
+<!-- Dialog -->
+<div id="dialogOverlay"
+     style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4);
+     justify-content:center; align-items:center;">
+  <div id="dialogBox"
+       style="background:white; padding:20px; width:600px; border-radius:10px; text-align:center;">
+      <p id="dialogMessage"></p>
+      <input id="answerInput" type="text">
+      <button id="dialogOkBtn">OK</button>
+  </div>
 </div>
 
 <script src="/socket.io/socket.io.js"></script>
 <script>
-
 
 const questions = [
  "What is the capital of France",
@@ -61,105 +61,78 @@ const questions = [
  "What is the capital of USA"
 ];
 
-function getQuestion() {
-    return questions[Math.floor(Math.random() * questions.length)];
-}
+const answers = {
+ "What is the capital of France": "Paris",
+ "What is the capital of Germany": "Berlin",
+ "What is the capital of Iran": "Tehran",
+ "What is the capital of Ethiopia": "Addis Ababa",
+ "What is the capital of India": "New Delhi",
+ "What is the capital of North Korea": "Pyongyang",
+ "What is the capital of Japan": "Tokyo",
+ "What is the capital of USA": "Washington DC"
+};
 
 const socket = io();
 let myLetter = null;
 let players = {};
-let id = null; 
+let id = null;
 
-socket.on('connect', () => {
-    id = socket.id; 
-    console.log('My unique ID is:', id); 
-});
+socket.on('connect', () => id = socket.id);
 
 socket.on('assigned', (data) => {
-    myLetter = data.letter;
-    document.title = You are ${myLetter};
+  myLetter = data.letter;
+  document.title = `You are ${myLetter}`;
 });
 
 socket.on("update", (updatedPlayers) => {
-
-    players = updatedPlayers;
-
-    if (players[id] && players[id].frozen === true) {
-          askQuestionToUnfreeze();
-    }
+  players = updatedPlayers;
+  if (players[id] && players[id].frozen) askQuestionToUnfreeze();
 });
 
-function showDialog(message, callback) {
-    document.getElementById('dialogMessage').textContent = message;
-    document.getElementById('answerInput').value = "";
-    document.getElementById('dialogOverlay').style.display = 'block';
-    document.getElementById('dialogBox').style.display = 'block';
+function getQuestion() {
+    return questions[Math.floor(Math.random() * questions.length)];
+}
 
-    document.getElementById('dialogOkBtn').onclick = () => {
-        callback(document.getElementById('answerInput').value.trim());
-    };
+function showDialog(message, callback) {
+  document.getElementById('dialogMessage').textContent = message;
+  document.getElementById('answerInput').value = "";
+  document.getElementById('dialogOverlay').style.display = 'flex';
+  document.getElementById('dialogOkBtn').onclick = () =>
+     callback(document.getElementById('answerInput').value.trim());
 }
 
 function closeDialog() {
-    document.getElementById('dialogOverlay').style.display = 'none';
-    document.getElementById('dialogBox').style.display = 'none';
+  document.getElementById('dialogOverlay').style.display = 'none';
 }
-
 
 function askQuestionToUnfreeze() {
-   
-    const question = getQuestion();
+  const q = getQuestion();
 
-    function checkAnswer(ans) {
-
-        let correct =
-            (question == "What is the capital of France" && ans == "Paris") ||
-            (question == "What is the capital of Germany" && ans == "Berlin") ||
-            (question == "What is the capital of Iran" && ans == "Tehran") ||
-            (question == "What is the capital of Ethiopia" && ans == "Addis Ababa") ||
-            (question == "What is the capital of India" && ans == "New Delhi") ||
-            (question == "What is the capital of North Korea" && ans == "Pyongyang") ||
-            (question == "What is the capital of Japan" && ans == "Tokyo") ||
-            (question == "What is the capital of USA" && ans == "Washington DC");
-
-        if (correct) {
-            players[id].frozen = false;
-            closeDialog();
-        } else {
-            alert("Incorrect! Try again.");
-            showDialog("You have been frozen. Solve: " + question, checkAnswer);
-        }
+  function checkAnswer(ans) {
+    if (ans === answers[q]) {
+      socket.emit("unfreezePlayer", { letter: myLetter });
+      closeDialog();
+    } else {
+      alert("Incorrect! Try again.");
+      showDialog("You have been frozen. Solve: " + q, checkAnswer);
     }
+  }
 
-    showDialog("You have been frozen. Solve: " + question, checkAnswer);
+  showDialog("You have been frozen. Solve: " + q, checkAnswer);
 }
 
-
 function analyse(button) {
-    
-    const buttonText = button.textContent.trim();
+  const clicked = button.textContent.trim();
+  if (clicked === myLetter) return;
 
-    if (buttonText === myLetter) return;
+  const exists = Object.values(players).some(p => p.letter === clicked);
 
-    let opponent = false;
-    for (let pid in players) {
-        if (players[pid].letter === buttonText) {
-            opponent = true;
-            break;
-        }
-    }
-
-    if (opponent) {
-        socket.emit("freezePlayer", { letter: buttonText });
-        return;
-    }
-
-    else{
-        socket.emit("unfreezePlayer", { letter: buttonText });
-        return;
-     }
-   }
-
+  if (exists) {
+    socket.emit("freezePlayer", { letter: clicked });
+  } else {
+    socket.emit("unfreezePlayer", { letter: clicked });
+  }
+}
 </script>
 </body>
 </html>
