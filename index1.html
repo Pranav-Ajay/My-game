@@ -114,6 +114,36 @@
 <script src="/socket.io/socket.io.js"></script>
 <script>
 
+const order = [
+  "A","B","C","D",
+  "E","F","G","H",
+  "I","J","K","L",
+  "M","N","O","P"
+];
+
+let currentIndex = 0;
+const marker = document.getElementById("marker");
+
+function moveMarkerTo(letter) {
+  const btn = [...document.querySelectorAll("button")]
+              .find(b => b.textContent.trim() === letter);
+
+  const boardRect = document.getElementById("board").getBoundingClientRect();
+  const btnRect = btn.getBoundingClientRect();
+
+  marker.style.left = (btnRect.left - boardRect.left + btnRect.width/2 - 12) + "px";
+  marker.style.top  = (btnRect.top  - boardRect.top  + btnRect.height/2 - 12) + "px";
+}
+
+function moveMarker() {
+  currentIndex = (currentIndex + 1) % order.length;
+  moveMarkerTo(order[currentIndex]);
+}
+window.onload = () => moveMarkerTo(order[0]);
+
+setInterval(moveMarker, 2000);
+
+
 const questions = [
  "What is the capital of France",
  "What is the capital of Germany",
