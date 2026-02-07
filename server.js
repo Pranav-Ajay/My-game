@@ -4,85 +4,78 @@ const socketIo = require('socket.io');
 
 const app = express();
 const server = http.createServer(app);
-const io = socketIo(server, {
-  cors: { origin: "*" }
-});
+const io = socketIo(server, { cors: { origin: "*" } });
 
 app.use(express.static(__dirname));
+app.use(express.json());   
 
 const players = {};
-const alphabets = 'ABCDEFGHIJKLMNOP'.split('');
+let playerNames = [];   
 
-const allowedIPs = process.env.ALLOW_IP === "true" ? [
-  '::1',
-  '192.168.9.201',
-  '192.168.9.200',
-  '::ffff:192.168.9.201',
-  '::ffff:192.168.9.200'
-] : null;
+const alphabets = 'ABCDEFGHIJKLMNOP'.split('').map(l => ({
+  letter: l,
+  frozen: false
+}));
+
+app.post("/add_player", (req, res) => {
+  const { name } = req.body;
+  if (!name) return res.sendStatus(400);
+
+  playerNames.push({ name });
+
+  io.emit("playersUpdated", playerNames);
+
+  res.sendStatus(200);
+});
+
+app.get("/get_players", (req, res) => {
+  res.json(playerNames);
+});
 
 io.on('connection', (socket) => {
-  let ip = socket.handshake.address.replace('::ffff:', '');
-  console.log(`Connection attempt from ${ip}`);
+  console.log("Player connected:", socket.id);
 
-  if (allowedIPs && !allowedIPs.includes(ip)) {
-    console.log(`Blocked unauthorized IP: ${ip}`);
-    socket.emit('errorMessage', 'You are not allowed to join this game.');
-    socket.disconnect(true);
-    return;
-  }
-
-  const assignedLetter = alphabets.find(
-    letter => !Object.values(players).some(p => p.letter === letter)
+  const assignedLetterObj = alphabets.find(a =>
+    !Object.values(players).some(p => p.letter === a.letter)
   );
 
-  if (!assignedLetter) {
-    socket.emit('errorMessage', 'Game full—no more players can join.');
+  if (!assignedLetterObj) {
+    socket.emit('errorMessage', 'Game full');
     socket.disconnect(true);
     return;
   }
 
-  players[socket.id] = { letter: assignedLetter, frozen: false };
+  players[socket.id] = { letter: assignedLetterObj.letter };
   socket.emit('assigned', players[socket.id]);
-  io.emit('update', players);
+
+  io.emit('update', { players, alphabets });
 
   socket.on('freezePlayer', ({ letter }) => {
     for (let id in players) {
-      if (players[id].letter === letter) players[id].frozen = true;
+      if (players[id].letter === letter) {
+        players[id].frozen = true;
+      }
     }
-    io.emit('update', players);
+    io.emit('update', { players, alphabets });
   });
 
-  socket.on('unfreezePlayer', ({ letter })  => {
+  socket.on('unfreezePlayer', ({ letter }) => {
     for (let id in players) {
-      if (players[id].letter === letter) players[id].frozen = false;
+      if (players[id].letter === letter) {
+        players[id].frozen = false;
+      }
     }
-    io.emit('update', players);
- });
+    io.emit('update', { players, alphabets });
+  });
 
   socket.on('disconnect', () => {
     delete players[socket.id];
-    io.emit('update', players);
+    io.emit('update', { players, alphabets });
     console.log('Player disconnected:', socket.id);
   });
 });
-
-  socket.on('freezealpha', ({ letter })  => {
-    for (let id in players) {
-      if (players[id].frozen == true)  alphabets.frozen==true;
-    }
-    io.emit('update', players);
- });
-
-  socket.on('unfreezealpha', ({ letter })  => {
-    for (let id in players) {
-      if (players[id].frozen = false)  alphabets.frozen==false;
-    }
-    io.emit('update', players);
- });
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, "0.0.0.0", () => {
   console.log(`Server running on port ${PORT}`);
 });
-
