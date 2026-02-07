@@ -7,73 +7,131 @@ const server = http.createServer(app);
 const io = socketIo(server, { cors: { origin: "*" } });
 
 app.use(express.static(__dirname));
-app.use(express.json());   
+app.use(express.json());
 
+/* ================= GAME STATE ================= */
+
+// socket.id → player object
 const players = {};
-let playerNames = [];   
 
-const alphabets = 'ABCDEFGHIJKLMNOP'.split('').map(l => ({
-  letter: l,
-  frozen: false
-}));
+// 36 player slots
+const alphabets = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+  .split('')
+  .map(l => ({ letter: l, frozen: false }));
 
-app.post("/add_player", (req, res) => {
-  const { name } = req.body;
-  if (!name) return res.sendStatus(400);
+/* ================= HELPER ================= */
 
-  playerNames.push({ name });
+function getPlayerList() {
+  return Object.values(players).map(p => ({
+    name: p.name,
+    clicks: p.clicks,
+    correct: p.correct,
+    attempts: p.attempts,
+    accuracy: p.accuracy,
+    letter: p.letter,
+    frozen: p.frozen
+  }));
+}
 
-  io.emit("playersUpdated", playerNames);
+function recalcAccuracy(player) {
+  player.accuracy = player.attempts > 0
+    ? +(player.correct / player.attempts).toFixed(2)
+    : 0;
+}
 
-  res.sendStatus(200);
-});
-
-app.get("/get_players", (req, res) => {
-  res.json(playerNames);
-});
+/* ================= SOCKET LOGIC ================= */
 
 io.on('connection', (socket) => {
-  console.log("Player connected:", socket.id);
+  console.log("Connected:", socket.id);
 
-  const assignedLetterObj = alphabets.find(a =>
-    !Object.values(players).some(p => p.letter === a.letter)
-  );
+  /* ---------- PLAYER JOINS GAME ---------- */
+  socket.on("joinGame", ({ name }) => {
 
-  if (!assignedLetterObj) {
-    socket.emit('errorMessage', 'Game full');
-    socket.disconnect(true);
-    return;
-  }
-
-  players[socket.id] = { letter: assignedLetterObj.letter };
-  socket.emit('assigned', players[socket.id]);
-
-  io.emit('update', { players, alphabets });
-
-  socket.on('freezePlayer', ({ letter }) => {
-    for (let id in players) {
-      if (players[id].letter === letter) {
-        players[id].frozen = true;
-      }
+    if (!name || name.trim() === "") {
+      socket.emit("errorMessage", "Name required");
+      return;
     }
-    io.emit('update', { players, alphabets });
+
+    // Prevent duplicate names
+    if (Object.values(players).some(p => p.name === name)) {
+      socket.emit("errorMessage", "Name already taken");
+      return;
+    }
+
+    // Find free letter slot
+    const freeLetter = alphabets.find(a =>
+      !Object.values(players).some(p => p.letter === a.letter)
+    );
+
+    if (!freeLetter) {
+      socket.emit("errorMessage", "Game full");
+      return;
+    }
+
+    players[socket.id] = {
+      name,
+      letter: freeLetter.letter,
+      frozen: false,
+      clicks: 0,
+      correct: 0,
+      attempts: 0,
+      accuracy: 0
+    };
+
+    socket.emit("assigned", players[socket.id]);
+
+    io.emit("update", { players, alphabets });
+    io.emit("playersUpdated", getPlayerList());
   });
 
-  socket.on('unfreezePlayer', ({ letter }) => {
-    for (let id in players) {
-      if (players[id].letter === letter) {
-        players[id].frozen = false;
-      }
-    }
-    io.emit('update', { players, alphabets });
+  /* ---------- CLICK TRACKING ---------- */
+  socket.on("markerClick", () => {
+    const player = players[socket.id];
+    if (!player) return;
+
+    player.clicks++;
+    io.emit("playersUpdated", getPlayerList());
   });
 
-  socket.on('disconnect', () => {
+  /* ---------- ANSWER CHECKING ---------- */
+  socket.on("answerResult", ({ correct }) => {
+    const player = players[socket.id];
+    if (!player) return;
+
+    player.attempts++;
+    if (correct) player.correct++;
+
+    recalcAccuracy(player);
+    io.emit("playersUpdated", getPlayerList());
+  });
+
+  /* ---------- FREEZE / UNFREEZE ---------- */
+  socket.on("freezePlayer", ({ letter }) => {
+    for (let id in players) {
+      if (players[id].letter === letter) players[id].frozen = true;
+    }
+    io.emit("update", { players, alphabets });
+  });
+
+  socket.on("unfreezePlayer", ({ letter }) => {
+    for (let id in players) {
+      if (players[id].letter === letter) players[id].frozen = false;
+    }
+    io.emit("update", { players, alphabets });
+  });
+
+  /* ---------- DISCONNECT ---------- */
+  socket.on("disconnect", () => {
+    console.log("Disconnected:", socket.id);
     delete players[socket.id];
-    io.emit('update', { players, alphabets });
-    console.log('Player disconnected:', socket.id);
+
+    io.emit("update", { players, alphabets });
+    io.emit("playersUpdated", getPlayerList());
   });
+
 });
+
+/* ================= START SERVER ================= */
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, "0.0.0.0", () => {
