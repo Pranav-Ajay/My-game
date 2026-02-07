@@ -7,29 +7,22 @@ const server = http.createServer(app);
 const io = socketIo(server, { cors: { origin: "*" } });
 
 app.use(express.static(__dirname));
-app.use(express.json());   // IMPORTANT for POST data
+app.use(express.json());   
 
-// =====================
-// GAME STATE
-// =====================
 const players = {};
-let playerNames = [];   // Stores names from login page
+let playerNames = [];   /
 
 const alphabets = 'ABCDEFGHIJKLMNOP'.split('').map(l => ({
   letter: l,
   frozen: false
 }));
 
-// =====================
-// API ROUTES (Flask replacement)
-// =====================
 app.post("/add_player", (req, res) => {
   const { name } = req.body;
   if (!name) return res.sendStatus(400);
 
   playerNames.push({ name });
 
-  // Update everyone’s table instantly
   io.emit("playersUpdated", playerNames);
 
   res.sendStatus(200);
@@ -39,9 +32,6 @@ app.get("/get_players", (req, res) => {
   res.json(playerNames);
 });
 
-// =====================
-// SOCKET.IO GAME LOGIC
-// =====================
 io.on('connection', (socket) => {
   console.log("Player connected:", socket.id);
 
@@ -85,9 +75,6 @@ io.on('connection', (socket) => {
   });
 });
 
-// =====================
-// START SERVER
-// =====================
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, "0.0.0.0", () => {
   console.log(`Server running on port ${PORT}`);
