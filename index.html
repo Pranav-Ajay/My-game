@@ -7,10 +7,33 @@
     <button onclick="execute()">SUBMIT</button>
   </div>
 <script>
- function execute(){
-  let name=document.getElementById("inp").value;
-  localStorage.setItem('username', name);
-  window.location.href="index1.html";}
+ function execute() {
+    const name = document.getElementById("inp").value;
+
+    fetch("/add_player", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({name: name})
+    }).then(() => loadPlayers());
+}
+
+function loadPlayers() {
+    fetch("/get_players")
+    .then(res => res.json())
+    .then(data => {
+        const table = document.getElementById("playerTable");
+        table.innerHTML = "<tr><th>Players</th></tr>";
+        data.forEach(p => {
+            table.innerHTML += `<tr><td>${p.name}</td></tr>`;
+        });
+    });
+}
+
+window.onload = loadPlayers;
+</script>
+
+</body>
+</html>
   
 </script>
 </body>
