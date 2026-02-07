@@ -18,20 +18,6 @@
    window.location.href="index1.html";
 }
 
-function loadPlayers() {
-    fetch("/get_players")
-    .then(res => res.json())
-    .then(data => {
-        const table = document.getElementById("playerTable");
-        table.innerHTML = "<tr><th>Players</th></tr>";
-        data.forEach(p => {
-            table.innerHTML += `<tr><td>${p.name}</td></tr>`;
-        });
-    });
-}
-
-window.onload = loadPlayers;
-
   
 </script>
 </body>
