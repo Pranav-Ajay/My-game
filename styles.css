@@ -5,7 +5,7 @@ div {
   transform: translate(-50%, -50%);
 }
 button{
-  color: #8A00C4;
+  background-color: #8A00C4;
   width: 100px;
   height: 100px;
 }
