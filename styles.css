@@ -6,6 +6,7 @@ div {
 }
 button{
   background-color: #8A00C4;
+  text-shadow: 0 0 5px  #8A00C4, 0 0 10px  #8A00C4;
   width: 100px;
   height: 100px;
 }
